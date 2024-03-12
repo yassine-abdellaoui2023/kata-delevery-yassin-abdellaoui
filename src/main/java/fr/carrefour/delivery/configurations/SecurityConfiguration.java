@@ -33,7 +33,8 @@ public class SecurityConfiguration {
                         "/swagger-ui/**",
                         "/webjars/**",
                         "/swagger-ui.html",
-                                "/api/v1/clients/auth/**").permitAll().anyRequest().authenticated();
+                                "/api/v1/clients/auth/**","/api/v1/clients/register").permitAll()
+                        .anyRequest().authenticated();
 
         http
                 .oauth2ResourceServer()

@@ -102,11 +102,14 @@ public class ClientService implements IClientService {
 
     public ClientDTO getClientById(String userId) throws EntityNotFoundException {
         UsersResource usersResource = KeycloakConfig.getInstance().realm(KeycloakConfig.realm).users();
-        UserRepresentation userRepresentation = usersResource.get(userId).toRepresentation();
-
-        if (userRepresentation == null) {
+        UserRepresentation userRepresentation;
+        try {
+            userRepresentation = usersResource.get(userId).toRepresentation();
+        }catch (Exception e){
             throw new EntityNotFoundException("Client with id "+ userId + " is not found" , ErrorCodes.ENTITY_NOT_FOUND);
         }
+
+
 
         List<RoleRepresentation> roleRepresentations = usersResource.get(userId).roles().realmLevel().listAll();
         List<RoleDto> roles = roleRepresentations.stream()

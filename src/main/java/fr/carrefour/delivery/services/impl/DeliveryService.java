@@ -24,11 +24,13 @@ public class DeliveryService implements IDeliveryService {
     @Override
     @Transactional
     public String saveDelevery(DeliveryDto deliveryDto) {
-                if (deliveryDto.getDateDeLivraison().getHours() < new Date().getHours() - 3 && deliveryDto.getDeliveryMode() != DeliveryMode.DELIVERY_ASAP) {
+                if ((deliveryDto.getDateDeLivraison().getHours() < new Date().getHours() + 5 || deliveryDto.getDateDeLivraison().getDay() > new Date().getDay())&& deliveryDto.getDeliveryMode() != DeliveryMode.DELIVERY_ASAP) {
                 return "You should choose 'DELIVERY_ASAP'";
             }if (deliveryDto.getDateDeLivraison().getDay() == new Date().getDay() && deliveryDto.getDeliveryMode() != DeliveryMode.DELIVERY_TODAY && deliveryDto.getDeliveryMode() != DeliveryMode.DELIVERY_ASAP){
             return "You should choose 'DELIVERY_TODAY' mode";}
-                else if (checkSlotAvailability(deliveryDto.getDateDeLivraison(), deliveryDto.getDeliveryMode())) {
+                else if(deliveryDto.getDateDeLivraison().getDay() != new Date().getDay() && deliveryDto.getDeliveryMode() == DeliveryMode.DELIVERY_ASAP){
+                    return "you should choose another mode";
+        } else if (checkSlotAvailability(deliveryDto.getDateDeLivraison(), deliveryDto.getDeliveryMode())) {
                 deliveryRepository.save(DeliveryDto.toEntity(deliveryDto));
             }else {
                 return "Date in not available";

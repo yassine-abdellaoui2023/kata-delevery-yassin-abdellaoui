@@ -1,75 +1,79 @@
 package fr.carrefour.delivery.handlers;
-import java.util.Collections;
 
-import fr.carrefour.delivery.exception.EntityNotFoundException;
-import fr.carrefour.delivery.exception.ErrorCodes;
-import fr.carrefour.delivery.exception.InvalidOperationException;
+import fr.carrefour.delivery.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import fr.carrefour.delivery.exception.InvalidEntityException;
-
-
 @RestControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-  @ExceptionHandler(EntityNotFoundException.class)
-  public ResponseEntity<ErrorDto> handleException(EntityNotFoundException exception, WebRequest webRequest) {
+    @ExceptionHandler(InvalidEntityException.class)
+    public ResponseEntity<ErrorDTO> handleException(InvalidEntityException exception , WebRequest webRequest){
+        final HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+        ErrorDTO error =  ErrorDTO.builder()
+                .errorCodes(exception.getErrorCodes())
+                .httpCode(badRequest.value())
+                .message(exception.getMessage())
+                .errors(exception.getErrors())
+                .build();
+        return new ResponseEntity<>(error , badRequest);
 
-    final HttpStatus notFound = HttpStatus.NOT_FOUND;
-    final ErrorDto errorDto = ErrorDto.builder()
-        .code(exception.getErrorCode())
-        .httpCode(notFound.value())
-        .message(exception.getMessage())
-        .build();
+    }
 
-    return new ResponseEntity<>(errorDto, notFound);
-  }
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorDTO> handleException(UnauthorizedException exception , WebRequest webRequest){
+        final HttpStatus badRequest = HttpStatus.UNAUTHORIZED;
+        ErrorDTO error =  ErrorDTO.builder()
+                .errorCodes(exception.getErrorCodes())
+                .httpCode(badRequest.value())
+                .message(exception.getMessage())
+                .errors(exception.getErrors())
+                .build();
+        return new ResponseEntity<>(error , badRequest);
 
-  @ExceptionHandler(InvalidOperationException.class)
-  public ResponseEntity<ErrorDto> handleException(InvalidOperationException exception, WebRequest webRequest) {
+    }
 
-    final HttpStatus notFound = HttpStatus.BAD_REQUEST;
-    final ErrorDto errorDto = ErrorDto.builder()
-        .code(exception.getErrorCode())
-        .httpCode(notFound.value())
-        .message(exception.getMessage())
-        .build();
 
-    return new ResponseEntity<>(errorDto, notFound);
-  }
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorDTO> handleException(EntityNotFoundException exception , WebRequest webRequest){
+        final HttpStatus badRequest = HttpStatus.NOT_FOUND;
+        ErrorDTO error =  ErrorDTO.builder()
+                .errorCodes(exception.getErrorCodes())
+                .httpCode(badRequest.value())
+                .message(exception.getMessage())
+                .errors(exception.getErrors())
+                .build();
+        return new ResponseEntity<>(error , badRequest);
 
-  @ExceptionHandler(InvalidEntityException.class)
-  public ResponseEntity<ErrorDto> handleException(InvalidEntityException exception, WebRequest webRequest) {
-    final HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+    }
 
-    final ErrorDto errorDto = ErrorDto.builder()
-        .code(exception.getErrorCode())
-        .httpCode(badRequest.value())
-        .message(exception.getMessage())
-        .errors(exception.getErrors())
-        .build();
+    @ExceptionHandler(ErrorOccurredException.class)
+    public ResponseEntity<ErrorDTO> handleException(ErrorOccurredException exception , WebRequest webRequest){
+        final HttpStatus badRequest = HttpStatus.INTERNAL_SERVER_ERROR;
+        ErrorDTO error =  ErrorDTO.builder()
+                .errorCodes(exception.getErrorCodes())
+                .httpCode(badRequest.value())
+                .message(exception.getMessage())
+                .errors(exception.getErrors())
+                .build();
+        return new ResponseEntity<>(error , badRequest);
 
-    return new ResponseEntity<>(errorDto, badRequest);
-  }
+    }
 
-  @ExceptionHandler(BadCredentialsException.class)
-  public ResponseEntity<ErrorDto> handleException(BadCredentialsException exception, WebRequest webRequest) {
-    final HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+    @ExceptionHandler(EntityAlreadyExistException.class)
+    public ResponseEntity<ErrorDTO> handleException(EntityAlreadyExistException exception , WebRequest webRequest){
+        final HttpStatus badRequest = HttpStatus.CONFLICT;
+        ErrorDTO error =  ErrorDTO.builder()
+                .errorCodes(exception.getErrorCodes())
+                .httpCode(badRequest.value())
+                .message(exception.getMessage())
+                .errors(exception.getErrors())
+                .build();
+        return new ResponseEntity<>(error , badRequest);
 
-    final ErrorDto errorDto = ErrorDto.builder()
-        .code(ErrorCodes.BAD_CREDENTIALS)
-        .httpCode(badRequest.value())
-        .message(exception.getMessage())
-        .errors(Collections.singletonList("Login et / ou mot de passe incorrecte"))
-        .build();
-
-    return new ResponseEntity<>(errorDto, badRequest);
-  }
-
+    }
 }

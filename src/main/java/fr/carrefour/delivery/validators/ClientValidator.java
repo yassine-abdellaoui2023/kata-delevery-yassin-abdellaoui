@@ -3,7 +3,7 @@ package fr.carrefour.delivery.validators;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.util.StringUtils;
-import fr.carrefour.delivery.DTO.ClientDTO;
+import fr.carrefour.delivery.dtos.ClientDTO;
 
 public class ClientValidator {
 
@@ -19,10 +19,10 @@ public class ClientValidator {
     if (!StringUtils.hasLength(clientDTO.getEmail())) {
       errors.add("Veuillez renseigner l'email");
     }
-    if (!StringUtils.hasLength(clientDTO.getNom())) {
+    if (!StringUtils.hasLength(clientDTO.getFirstName())) {
       errors.add("Veuillez renseigner le nom");
     }
-    if (!StringUtils.hasLength(clientDTO.getPrenom())) {
+    if (!StringUtils.hasLength(clientDTO.getLastName())) {
       errors.add("Veuillez renseigner le prenom");
     }
     return errors;

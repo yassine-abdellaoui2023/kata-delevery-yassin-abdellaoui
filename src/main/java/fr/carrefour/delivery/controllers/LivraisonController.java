@@ -1,6 +1,11 @@
 package fr.carrefour.delivery.controllers;
 
-import fr.carrefour.delivery.exception.ErrorCodes;
+import fr.carrefour.delivery.dtos.DeliveryDto;
+import fr.carrefour.delivery.entities.Delivery;
+import fr.carrefour.delivery.exceptions.InvalidEntityException;
+import fr.carrefour.delivery.handlers.ErrorCodes;
+import fr.carrefour.delivery.services.interfaces.IDeliveryService;
+import fr.carrefour.delivery.validators.DeliveryValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -8,59 +13,36 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import fr.carrefour.delivery.DTO.LivraisonDTO;
-import fr.carrefour.delivery.entities.Livraison;
-import fr.carrefour.delivery.exception.InvalidEntityException;
-import fr.carrefour.delivery.services.LivraisonService;
-import fr.carrefour.delivery.utils.Constants;
-import fr.carrefour.delivery.validators.LivraisonValidator;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-
 import java.util.List;
 
 @RestController
-@RequestMapping(Constants.LIVRAISON_ENDPOINT)
+@RequestMapping("/api/v1/delivery")
 @Validated
 public class LivraisonController {
+    private IDeliveryService deliveryService;
 
-    private final Logger log = LoggerFactory.getLogger(Livraison.class);
-
-    private LivraisonService livraisonService;
-
-    public LivraisonController(LivraisonService livraisonService){
-        this.livraisonService = livraisonService;
+    public LivraisonController(IDeliveryService deliveryService){
+        this.deliveryService = deliveryService;
     }
     
 
     @GetMapping
-    public ResponseEntity<List<Livraison>> getAllLivraisons() {
-        List<Livraison> livraisons = livraisonService.getAllLivraisons();
-        return new ResponseEntity<>(livraisons, HttpStatus.OK);
+    public ResponseEntity<List<DeliveryDto>> getAllDeliveries() {
+        List<DeliveryDto> deliveries = deliveryService.getAllDeliveries();
+        return new ResponseEntity<>(deliveries, HttpStatus.OK);
     }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Livraison> getLivraisonById(@PathVariable @Min(1) int id) {
-        Livraison livraison = livraisonService.getLivraisonById(id);
-        return new ResponseEntity<>(livraison, HttpStatus.OK);
-    }
-
     @PostMapping
-    public ResponseEntity<Livraison> addLivraison(@Valid @RequestBody Livraison livraison) {
-        log.debug("REST request to save Abonne : {}", livraison);
-        LivraisonDTO livraisonDTO = LivraisonDTO.fromEntity(livraison);
-        List<String> errors = LivraisonValidator.validate(livraisonDTO);
+    public ResponseEntity<String> createDelivery(@RequestBody DeliveryDto deliveryDto) throws InvalidEntityException {
+        List<String> errors = DeliveryValidator.validate(deliveryDto);
         if (!errors.isEmpty()) {
-        log.error("Livraison invalide {}", livraisonDTO);
-        throw new InvalidEntityException("Livraison invalide", ErrorCodes.LIVRAISON_NOT_VALID, errors);
+        throw new InvalidEntityException("invalid delivery values !", ErrorCodes.INVALID_ENTITY_EXCEPTION, errors);
         }
-        Livraison savedLivraison = livraisonService.saveLivraison(livraison);
-        return new ResponseEntity<>(savedLivraison, HttpStatus.CREATED);
+        return ResponseEntity.ok(deliveryService.saveDelevery(deliveryDto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLivraison(@PathVariable @Min(1) Integer id) {
-        livraisonService.deleteLivraison(id);
+    public ResponseEntity<Void> deleteDelivery(@PathVariable Long id) {
+        deliveryService.deleteDelivery(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
